@@ -2,6 +2,7 @@ package br.com.ada.reservala.service;
 
 import br.com.ada.reservala.domain.Room;
 import br.com.ada.reservala.repository.RoomRepository;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -20,40 +21,83 @@ class RoomServiceTest {
     }
 
     @Test
-    void createRoom() {
-        Room room = new Room();
-        room.setRoomNumber(1);
-        room.setType("Deluxe");
-        room.setPrice(450);
-        room.setAvailable(true);
-
+    void deveriaCriarRoomNaoNull() {
+        Room room = new Room(1, "Deluxe", 450, true);
         when(roomRepository.createRoom(any(Room.class))).thenReturn(room);
 
         Room createdRoom = roomService.createRoom(room);
 
         verify(roomRepository).createRoom(eq(room));
 
-        assertTrue(createdRoom != null);
-        System.out.println(createdRoom.toString());
+        assertNotNull(createdRoom);
     }
 
     @Test
-    void readRoom() {
+    void deveriaNaoCriarRoomComRoomNumberNegativo() {
+        Room room = new Room(-4, "Deluxe", 450, true);
+        when(roomRepository.createRoom(any(Room.class))).thenReturn(room);
+
+        Room createdRoom = roomService.createRoom(room);
+
+        verify(roomRepository).createRoom(eq(room));
+        assertTrue(createdRoom.getRoomNumber() > -1);
     }
 
     @Test
-    void updateRoom() {
+    void deveriaNaoCriarRoomComPriceNegativo() {
+        Room room = new Room(4, "Deluxe", -450, true);
+        when(roomRepository.createRoom(any(Room.class))).thenReturn(room);
+
+        Room createdRoom = roomService.createRoom(room);
+
+        verify(roomRepository).createRoom(eq(room));
+        assertTrue(createdRoom.getPrice() > -1);
     }
 
     @Test
-    void deleteRoom() {
+    void deveriaCriarRoomComPriceValoresDouble() {
+        Room room = new Room(4, "Deluxe", 450, true);
+        when(roomRepository.createRoom(any(Room.class))).thenReturn(room);
+
+        Room createdRoom = roomService.createRoom(room);
+
+        verify(roomRepository).createRoom(eq(room));
+        assertSame(createdRoom.getPrice().getClass(), Double.class);
     }
 
     @Test
-    void getOcupation() {
+    void deveriaNaoCriarRoomComAvailableIgualNull() {
+        Room room = new Room(4, "Deluxe", 450, null);
+        when(roomRepository.createRoom(any(Room.class))).thenReturn(room);
+
+        Room createdRoom = roomService.createRoom(room);
+
+        verify(roomRepository).createRoom(eq(room));
+        assertNotNull(createdRoom.getAvailable());
     }
 
     @Test
-    void getRevenue() {
+    void deveriaNaoCriarRoomComTypeIgualNull() {
+        Room room = new Room(4, null, 450, false);
+        when(roomRepository.createRoom(any(Room.class))).thenReturn(room);
+
+        Room createdRoom = roomService.createRoom(room);
+
+        verify(roomRepository).createRoom(eq(room));
+        assertNotNull(createdRoom.getType());
     }
+
+    @Test
+    void deveriaNaoCriarRoomComTypeIgualNumero() {
+        Room room = new Room(4, "132", 450, false);
+        when(roomRepository.createRoom(any(Room.class))).thenReturn(room);
+
+        Room createdRoom = roomService.createRoom(room);
+
+        verify(roomRepository).createRoom(eq(room));
+        assertTrue(createdRoom.getType().matches("\\D+"));
+    }
+
+
+
 }
