@@ -12,9 +12,9 @@ public class RoomRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
-    private String createSQL = "insert into room(roomNumber, type, price, avalaible) values (?, ?, ?, ?)";
+    private String createSQL = "insert into room(roomNumber, type, price, available) values (?, ?, ?, ?)";
     private String readSQL = "select * from room";
-    private String updateSQL = "update room ";
+    private String updateSQL = "update room set type = ?, price = ?, available = ? where roomNumber = ?";
     private String deleteSQL = "delete from room";
 
     public RoomRepository(JdbcTemplate jdbcTemplate) {
@@ -37,13 +37,18 @@ public class RoomRepository {
                 rs.getInt("roomNumber"),
                 rs.getString("type"),
                 rs.getInt("price"),
-                rs.getBoolean("avalaible")
+                rs.getBoolean("available")
         ));
         return jdbcTemplate.query(readSQL, rowMapper);
     }
 
     public Room updateRoom(Room room){
-        jdbcTemplate.update(updateSQL, room);
+        jdbcTemplate.update(updateSQL,
+                room.getType(),
+                room.getPrice(),
+                room.getAvailable(),
+                room.getRoomNumber()
+        );
         return room;
     }
 
