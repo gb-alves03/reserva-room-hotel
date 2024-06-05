@@ -1,9 +1,21 @@
 package br.com.ada.reservala.domain;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
+
 public class Room {
 
+    @NotNull(message = "Room number não pode ser nulo")
+    @Min(value = 1, message = "Room number não pode ser zero ou negativo")
     private Integer roomNumber;
+
+    @NotBlank
     private String type;
+
+    @NotNull(message = "Price não pode ser nulo")
+    @Min(value = 1, message = "Price não pode ser zero ou negativo")
     private Integer price;
     private Boolean available;
 
