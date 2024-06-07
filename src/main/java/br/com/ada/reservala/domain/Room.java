@@ -7,6 +7,9 @@ public class Room {
     private Integer price;
     private Boolean available;
 
+    public boolean isAvailable() {
+        return available;
+    }
     public Room() {
     }
 

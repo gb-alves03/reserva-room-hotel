@@ -5,6 +5,9 @@ import br.com.ada.reservala.repository.RoomRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -39,6 +42,31 @@ class RoomServiceTest {
 
     @Test
     void readRoom() {
+        List<Room> rooms = new ArrayList<>();
+        rooms.add(new Room(1, "Standard", 100, true));
+        rooms.add(new Room(2, "Deluxe", 200, false));
+
+        when(roomRepository.readRoom()).thenReturn(rooms);
+
+        List<Room> returnedRooms = roomService.readRoom();
+
+        assertFalse(returnedRooms.isEmpty());
+
+        for (Room room : returnedRooms) {
+            System.out.println(room.toString());
+            System.out.println("-----------------------");
+        }
+
+        assertEquals(2, returnedRooms.size());
+        assertEquals(1, returnedRooms.get(0).getRoomNumber());
+        assertEquals("Standard", returnedRooms.get(0).getType());
+        assertEquals(100, returnedRooms.get(0).getPrice());
+        assertTrue(returnedRooms.get(0).isAvailable());
+        assertEquals(2, returnedRooms.get(1).getRoomNumber());
+        assertEquals("Deluxe", returnedRooms.get(1).getType());
+        assertEquals(200, returnedRooms.get(1).getPrice());
+        assertFalse(returnedRooms.get(1).isAvailable());
+
     }
 
     @Test
