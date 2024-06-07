@@ -14,8 +14,21 @@ public class RoomService {
     public RoomService(RoomRepository roomRepository){
         this.roomRepository = roomRepository;
     }
+    public Room createRoom(Room room) {
+        // Validações das regras de negócio do create
+        if (room.getRoomNumber() < 0 || room.getRoomNumber() == null) {
+            throw new IllegalArgumentException("O Number não pode ser negativo ou vazio.");
+        }
+        if (room.getType() == null || !room.getType().matches("\\D+")) {
+            throw new IllegalArgumentException("O type não pode ser vazio ou numerico");
+        }
+        if (room.getPrice() < 0) {
+            throw new IllegalArgumentException("O price não pode ser negativo.");
+        }
+        if (room.getAvailable() == null  || room.getAvailable() ) {
+            throw new IllegalArgumentException("O availability não pode ser vazio.");
+        }
 
-    public Room createRoom(Room room){
         return roomRepository.createRoom(room);
     }
 
