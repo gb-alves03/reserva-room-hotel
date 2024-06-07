@@ -28,7 +28,6 @@ public class RoomService {
         if (room.getAvailable() == null  || room.getAvailable() ) {
             throw new IllegalArgumentException("O availability não pode ser vazio.");
         }
-
         return roomRepository.createRoom(room);
     }
 
