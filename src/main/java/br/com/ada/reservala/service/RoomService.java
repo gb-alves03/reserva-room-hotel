@@ -26,7 +26,7 @@ public class RoomService {
         if (room.getPrice() < 0) {
             throw new IllegalArgumentException("O price não pode ser negativo.");
         }
-        if (room.getAvailable() == null  || room.getAvailable() ) {
+        if (room.getAvailable()) {
             throw new IllegalArgumentException("O availability não pode ser vazio.");
         }
         return roomRepository.createRoom(room);
