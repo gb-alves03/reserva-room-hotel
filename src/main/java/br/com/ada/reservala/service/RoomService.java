@@ -8,8 +8,13 @@ import java.util.List;
 
 @Service
 public class RoomService {
+    private Boolean available;
+
+
+
 
     private RoomRepository roomRepository;
+
 
     public RoomService(RoomRepository roomRepository){
         this.roomRepository = roomRepository;
@@ -36,9 +41,12 @@ public class RoomService {
         return 100d;
     }
 
+
     //Deve calcular a receita obtida
     public Double getRevenue(){
         return 100d;
     }
+
+
 
 }

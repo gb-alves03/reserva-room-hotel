@@ -56,4 +56,9 @@ public class RoomRepository {
         jdbcTemplate.update(deleteSQL, roomNumber);
     }
 
+    public List<Room> findAll() {
+        return readRoom();
+    }
 }
+// git config --global user.email "leandromuniz98@outlook.com"
+// git config --global user.name "LehMuniz"

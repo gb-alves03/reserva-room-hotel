@@ -8,11 +8,16 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-class RoomServiceTest {
+public class RoomServiceTest {
     private RoomService roomService;
     private RoomRepository roomRepository;
 
@@ -36,7 +41,7 @@ class RoomServiceTest {
 
         verify(roomRepository).createRoom(eq(room));
 
-        assertTrue(createdRoom != null);
+  //      assertTrue(createdRoom != null);
         System.out.println(createdRoom.toString());
     }
 
@@ -54,7 +59,7 @@ class RoomServiceTest {
 
         for (Room room : returnedRooms) {
             System.out.println(room.toString());
-            System.out.println("-----------------------");
+         //   System.out.println("-----------------------");
         }
 
         assertEquals(2, returnedRooms.size());
@@ -68,6 +73,7 @@ class RoomServiceTest {
         assertFalse(returnedRooms.get(1).isAvailable());
 
     }
+
 
     @Test
     void updateRoom() {

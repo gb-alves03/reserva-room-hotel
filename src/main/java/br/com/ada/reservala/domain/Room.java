@@ -10,6 +10,7 @@ public class Room {
     public boolean isAvailable() {
         return available;
     }
+
     public Room() {
     }
 
