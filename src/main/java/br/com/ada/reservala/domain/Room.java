@@ -1,16 +1,31 @@
 package br.com.ada.reservala.domain;
 
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
+
+
 public class Room {
 
+    @NotNull(message = "Room number não pode ser nulo")
+    @Min(value = 1, message = "Room number não pode ser zero ou negativo")
     private Integer roomNumber;
+
+    @NotBlank
     private String type;
-    private Integer price;
+
+    @NotNull(message = "Price não pode ser nulo")
+    @Min(value = 1, message = "Price não pode ser zero ou negativo")
+    private Double price;
+
+    @NotNull
     private Boolean available;
 
     public Room() {
     }
 
-    public Room(Integer roomNumber, String type, Integer price, Boolean available) {
+    public Room(Integer roomNumber, String type, Double price, Boolean available) {
         this.roomNumber = roomNumber;
         this.type = type;
         this.price = price;
@@ -33,11 +48,11 @@ public class Room {
         this.type = type;
     }
 
-    public Integer getPrice() {
+    public Double getPrice() {
         return price;
     }
 
-    public void setPrice(Integer price) {
+    public void setPrice(Double price) {
         this.price = price;
     }
 

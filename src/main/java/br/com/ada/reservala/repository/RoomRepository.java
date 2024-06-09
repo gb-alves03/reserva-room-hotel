@@ -1,6 +1,7 @@
 package br.com.ada.reservala.repository;
 
 import br.com.ada.reservala.domain.Room;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
@@ -14,14 +15,15 @@ public class RoomRepository {
 
     private String createSQL = "insert into room(roomNumber, type, price, avalaible) values (?, ?, ?, ?)";
     private String readSQL = "select * from room";
-    private String updateSQL = "update room ";
-    private String deleteSQL = "delete from room";
+    private String updateSQL = "update room set type = ?, price = ? where roomNumber = ?";
+    private String deleteSQL = "delete from room WHERE roomNumber = ?";
 
     public RoomRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
     public Room createRoom(Room room){
+
         jdbcTemplate.update(
                 createSQL,
                 room.getRoomNumber(),
@@ -36,7 +38,7 @@ public class RoomRepository {
         RowMapper<Room> rowMapper = ((rs, rowNum) -> new Room(
                 rs.getInt("roomNumber"),
                 rs.getString("type"),
-                rs.getInt("price"),
+                rs.getDouble("price"),
                 rs.getBoolean("avalaible")
         ));
         return jdbcTemplate.query(readSQL, rowMapper);

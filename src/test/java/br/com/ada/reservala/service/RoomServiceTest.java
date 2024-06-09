@@ -22,7 +22,7 @@ class RoomServiceTest {
 
     @Test
     void deveriaCriarRoomNaoNull() {
-        Room room = new Room(1, "Deluxe", 450, true);
+        Room room = new Room(1, "Deluxe", 450.0, true);
         when(roomRepository.createRoom(any(Room.class))).thenReturn(room);
 
         Room createdRoom = roomService.createRoom(room);
@@ -34,7 +34,7 @@ class RoomServiceTest {
 
     @Test
     void deveriaNaoCriarRoomComRoomNumberNegativo() {
-        Room room = new Room(-4, "Deluxe", 450, true);
+        Room room = new Room(-4, "Deluxe", 450.0, true);
         when(roomRepository.createRoom(any(Room.class))).thenReturn(room);
 
         Room createdRoom = roomService.createRoom(room);
@@ -45,7 +45,7 @@ class RoomServiceTest {
 
     @Test
     void deveriaNaoCriarRoomComPriceNegativo() {
-        Room room = new Room(4, "Deluxe", -450, true);
+        Room room = new Room(4, "Deluxe", -450.0, true);
         when(roomRepository.createRoom(any(Room.class))).thenReturn(room);
 
         Room createdRoom = roomService.createRoom(room);
@@ -56,7 +56,7 @@ class RoomServiceTest {
 
     @Test
     void deveriaCriarRoomComPriceValoresDouble() {
-        Room room = new Room(4, "Deluxe", 450, true);
+        Room room = new Room(4, "Deluxe", 450.0, true);
         when(roomRepository.createRoom(any(Room.class))).thenReturn(room);
 
         Room createdRoom = roomService.createRoom(room);
@@ -67,7 +67,7 @@ class RoomServiceTest {
 
     @Test
     void deveriaNaoCriarRoomComAvailableIgualNull() {
-        Room room = new Room(4, "Deluxe", 450, null);
+        Room room = new Room(4, "Deluxe", 450.0, null);
         when(roomRepository.createRoom(any(Room.class))).thenReturn(room);
 
         Room createdRoom = roomService.createRoom(room);
@@ -78,7 +78,7 @@ class RoomServiceTest {
 
     @Test
     void deveriaNaoCriarRoomComTypeIgualNull() {
-        Room room = new Room(4, null, 450, false);
+        Room room = new Room(4, null, 450.0, false);
         when(roomRepository.createRoom(any(Room.class))).thenReturn(room);
 
         Room createdRoom = roomService.createRoom(room);
@@ -89,7 +89,7 @@ class RoomServiceTest {
 
     @Test
     void deveriaNaoCriarRoomComTypeIgualNumero() {
-        Room room = new Room(4, "132", 450, false);
+        Room room = new Room(4, "132", 450.0, false);
         when(roomRepository.createRoom(any(Room.class))).thenReturn(room);
 
         Room createdRoom = roomService.createRoom(room);

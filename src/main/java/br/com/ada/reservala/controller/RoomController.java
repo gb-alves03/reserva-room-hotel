@@ -5,6 +5,7 @@ import br.com.ada.reservala.service.RoomService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -18,7 +19,7 @@ public class RoomController {
     RoomService roomService;
 
     @PostMapping
-    public ResponseEntity<Room> createRoom(@RequestBody Room room){
+    public ResponseEntity<Room> createRoom(@Valid @RequestBody Room room){
         return ResponseEntity.ok(roomService.createRoom(room));
     }
 
