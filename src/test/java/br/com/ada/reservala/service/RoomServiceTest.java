@@ -149,12 +149,61 @@ class RoomServiceTest {
     }
 
     @Test
-    void testUpdateRoom_InvalidValues() {
+    void testUpdateRoom_InvalidPriceValue() {
         Room invalidRoom = new Room(2, "Standard", -350, true);
-        assertThrows(IllegalArgumentException.class, () -> {
-            roomService.updateRoom(invalidRoom);
-        });
+
+        IllegalArgumentException thrown =  Assertions.assertThrows(
+                IllegalArgumentException.class,
+                ()->  roomService.updateRoom(invalidRoom),
+                "Esperava-se que updateRoom() fosse lançado, mas isso não aconteceu"
+        );
+
+        assertTrue(thrown.getMessage().contains("O price não pode ser negativo"));
         verify(roomRepository, never()).updateRoom(any(Room.class));
+    }
+
+    @Test
+    void testUpdateRoom_InvalidTypeValue() {
+        Room invalidRoom = new Room(2, null, -350, true);
+
+        IllegalArgumentException thrown =  Assertions.assertThrows(
+                IllegalArgumentException.class,
+                ()->  roomService.updateRoom(invalidRoom),
+                "Esperava-se que updateRoom() fosse lançado, mas isso não aconteceu"
+        );
+
+        assertTrue(thrown.getMessage().contains("O type não pode ser vazio ou numerico"));
+        verify(roomRepository, never()).updateRoom(any(Room.class));
+    }
+
+    @Test
+    void testUpdateRoom_InvalidRoomNumber() {
+        Room invalidRoom = new Room(1, "Standard", 350, null);
+
+        IllegalArgumentException thrown =  Assertions.assertThrows(
+                IllegalArgumentException.class,
+                ()->  roomService.updateRoom(invalidRoom),
+                "Esperava-se que updateRoom() fosse lançado, mas isso não aconteceu"
+        );
+
+        assertTrue(thrown.getMessage().contains("O availability não pode ser vazio"));
+        verify(roomRepository, never()).updateRoom(any(Room.class));
+
+    }
+
+    @Test
+    void testUpdateRoom_InvalidAvailableValue() {
+        Room invalidRoom = new Room(2, "Standard", 350, true);
+
+        IllegalArgumentException thrown =  Assertions.assertThrows(
+                IllegalArgumentException.class,
+                ()->  roomService.updateRoom(invalidRoom),
+                "Esperava-se que updateRoom() fosse lançado, mas isso não aconteceu"
+        );
+
+        assertTrue(thrown.getMessage().contains("O type não pode ser vazio ou numerico"));
+        verify(roomRepository, never()).updateRoom(any(Room.class));
+
     }
 
     @Test
