@@ -1,25 +1,15 @@
 package br.com.ada.reservala.domain;
 
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-
 
 public class Room {
 
-    @NotNull(message = "Room number não pode ser nulo")
-    @Min(value = 1, message = "Room number não pode ser zero ou negativo")
     private Integer roomNumber;
-
-    @NotBlank
     private String type;
-
-    @NotNull(message = "Price não pode ser nulo")
-    @Min(value = 1, message = "Price não pode ser zero ou negativo")
     private Integer price;
     private Boolean available;
 
     public Room() {
+
     }
 
     public Room(Integer roomNumber, String type, Integer price, Boolean available) {
@@ -64,5 +54,9 @@ public class Room {
     @Override
     public String toString() {
         return "Room [roomNumber= " + getRoomNumber() + ", type= " + getType() + ", price= " + getPrice() + ", available= " + getAvailable() + "]";
+    }
+
+    public boolean isAvailable() {
+        return available;
     }
 }
