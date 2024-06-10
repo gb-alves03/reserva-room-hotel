@@ -1,5 +1,6 @@
 package br.com.ada.reservala.domain;
 
+
 public class Room {
 
     private Integer roomNumber;
@@ -8,6 +9,7 @@ public class Room {
     private Boolean available;
 
     public Room() {
+
     }
 
     public Room(Integer roomNumber, String type, Integer price, Boolean available) {
@@ -52,5 +54,9 @@ public class Room {
     @Override
     public String toString() {
         return "Room [roomNumber= " + getRoomNumber() + ", type= " + getType() + ", price= " + getPrice() + ", available= " + getAvailable() + "]";
+    }
+
+    public boolean isAvailable() {
+        return available;
     }
 }
