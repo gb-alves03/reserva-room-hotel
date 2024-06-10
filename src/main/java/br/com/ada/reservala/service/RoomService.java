@@ -43,6 +43,18 @@ public class RoomService {
     }
 
     public Room updateRoom(@Valid Room room){
+        if (room.getRoomNumber() < 0 || room.getRoomNumber() == null) {
+            throw new IllegalArgumentException("O roomNumber não pode ser negativo ou vazio");
+        }
+        if (room.getType() == null || !room.getType().matches("\\D+")) {
+            throw new IllegalArgumentException("O type não pode ser vazio ou numerico");
+        }
+        if (room.getPrice() < 0) {
+            throw new IllegalArgumentException("O price não pode ser negativo");
+        }
+        if (room.getAvailable() == null) {
+            throw new IllegalArgumentException("O availability não pode ser vazio");
+        }
         return roomRepository.updateRoom(room);
     }
 
