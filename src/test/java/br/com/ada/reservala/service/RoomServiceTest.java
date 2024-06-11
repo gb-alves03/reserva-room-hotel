@@ -8,9 +8,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
@@ -72,6 +70,30 @@ public class RoomServiceTest {
         assertEquals(200, returnedRooms.get(1).getPrice());
         assertFalse(returnedRooms.get(1).isAvailable());
 
+    }
+
+    @Test
+    void readRoomFindByPositive() {
+        List<Room> rooms = new ArrayList<>();
+        rooms.add(new Room(1, "Standard", 100, true));
+        rooms.add(new Room(2, "Deluxe", 200, false));
+        when(roomRepository.readRoom()).thenReturn(rooms);
+
+        String foundRoomDetails = roomService.findById(1);
+
+        assertNotNull(foundRoomDetails, "A String retornada não deve ser nula para o quarto 1");
+
+        assertTrue(foundRoomDetails.contains("Room [roomNumber= 1"), "A representação do quarto 1 encontrado deve conter o número do quarto");
+
+        System.out.println(foundRoomDetails);
+    }
+
+
+    @Test
+    void readRoomFindByNegative(){
+        String room4 = roomService.findById(4);
+        System.out.println(room4);  // Deve imprimir "Quarto nao encontrado"
+        assertEquals("Numero do quarto informado nao encontrado", room4, "O quarto 4 não deve ser encontrado");
     }
 
 
