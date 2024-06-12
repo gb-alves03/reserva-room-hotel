@@ -1,16 +1,16 @@
 package br.com.ada.reservala.repository;
 
 import br.com.ada.reservala.domain.Room;
-import jakarta.validation.Valid;
-import lombok.Getter;
+
+import br.com.ada.reservala.exception.RoomNotFoundException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
+
 
 import java.util.List;
 
-@Service
-@Getter
+@Repository
 public class RoomRepository {
 
     private final JdbcTemplate jdbcTemplate;
@@ -24,7 +24,7 @@ public class RoomRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public Room createRoom(@Valid Room room){
+    public Room createRoom(Room room){
         jdbcTemplate.update(
                 createSQL,
                 room.getRoomNumber(),
@@ -45,18 +45,22 @@ public class RoomRepository {
         return jdbcTemplate.query(readSQL, rowMapper);
     }
 
-    public Room updateRoom(@Valid Room room){
-        jdbcTemplate.update(updateSQL,
+    public Room updateRoom(Room room) {
+        int rowsAffected = jdbcTemplate.update(updateSQL,
                 room.getType(),
                 room.getPrice(),
                 room.getAvailable(),
                 room.getRoomNumber()
         );
+        if (rowsAffected == 0) {
+            throw new RoomNotFoundException("Room com número " + room.getRoomNumber() + " não encontrada");
+        }
         return room;
     }
 
     public void deleteRoom(Integer roomNumber){
         jdbcTemplate.update(deleteSQL, roomNumber);
     }
+
 
 }
