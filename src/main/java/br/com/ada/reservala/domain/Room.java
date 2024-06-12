@@ -1,35 +1,23 @@
 package br.com.ada.reservala.domain;
 
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-
-
 
 public class Room {
 
-    @NotNull(message = "Room number não pode ser nulo")
-    @Min(value = 1, message = "Room number não pode ser zero ou negativo")
     private Integer roomNumber;
-
-    @NotBlank
     private String type;
-
-    @NotNull(message = "Price não pode ser nulo")
-    @Min(value = 1, message = "Price não pode ser zero ou negativo")
-    private Double price;
-
-    @NotNull
+    private Integer price;
     private Boolean available;
 
     public Room() {
+
     }
 
-    public Room(Integer roomNumber, String type, Double price, Boolean available) {
+    public Room(Integer roomNumber, String type, Integer price, Boolean available) {
         this.roomNumber = roomNumber;
         this.type = type;
         this.price = price;
         this.available = available;
+        validate();
     }
 
     public Integer getRoomNumber() {
@@ -48,11 +36,11 @@ public class Room {
         this.type = type;
     }
 
-    public Double getPrice() {
+    public Integer getPrice() {
         return price;
     }
 
-    public void setPrice(Double price) {
+    public void setPrice(Integer price) {
         this.price = price;
     }
 
@@ -65,7 +53,53 @@ public class Room {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Room room = (Room) o;
+
+        if (!roomNumber.equals(room.roomNumber)) return false;
+        if (!type.equals(room.type)) return false;
+        if (!price.equals(room.price)) return false;
+        return available.equals(room.available);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = roomNumber.hashCode();
+        result = 31 * result + type.hashCode();
+        result = 31 * result + price.hashCode();
+        result = 31 * result + available.hashCode();
+        return result;
+    }
+
+    @Override
     public String toString() {
-        return "Room [roomNumber= " + getRoomNumber() + ", type= " + getType() + ", price= " + getPrice() + ", available= " + getAvailable() + "]";
+        return "Room{" +
+                "roomNumber=" + roomNumber +
+                ", type='" + type + '\'' +
+                ", price=" + price +
+                ", available=" + available +
+                '}';
+    }
+
+    public boolean isAvailable() {
+        return available;
+    }
+
+    private void validate() {
+        if (this.getRoomNumber() < 0 || this.getRoomNumber() == null) {
+            throw new IllegalArgumentException("O RoomNumber não pode ser negativo ou vazio");
+        }
+        if (this.getType() == null || !this.getType().matches("\\D+")) {
+            throw new IllegalArgumentException("O type não pode ser vazio ou numerico");
+        }
+        if (this.getPrice() < 0) {
+            throw new IllegalArgumentException("O price não pode ser negativo");
+        }
+        if (this.getAvailable() == null) {
+            throw new IllegalArgumentException("O available não pode ser vazio");
+        }
     }
 }
