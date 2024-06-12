@@ -17,6 +17,7 @@ public class Room {
         this.type = type;
         this.price = price;
         this.available = available;
+        validate();
     }
 
     public Integer getRoomNumber() {
@@ -52,11 +53,53 @@ public class Room {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Room room = (Room) o;
+
+        if (!roomNumber.equals(room.roomNumber)) return false;
+        if (!type.equals(room.type)) return false;
+        if (!price.equals(room.price)) return false;
+        return available.equals(room.available);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = roomNumber.hashCode();
+        result = 31 * result + type.hashCode();
+        result = 31 * result + price.hashCode();
+        result = 31 * result + available.hashCode();
+        return result;
+    }
+
+    @Override
     public String toString() {
-        return "Room [roomNumber= " + getRoomNumber() + ", type= " + getType() + ", price= " + getPrice() + ", available= " + getAvailable() + "]";
+        return "Room{" +
+                "roomNumber=" + roomNumber +
+                ", type='" + type + '\'' +
+                ", price=" + price +
+                ", available=" + available +
+                '}';
     }
 
     public boolean isAvailable() {
         return available;
+    }
+
+    private void validate() {
+        if (this.getRoomNumber() < 0 || this.getRoomNumber() == null) {
+            throw new IllegalArgumentException("O RoomNumber não pode ser negativo ou vazio");
+        }
+        if (this.getType() == null || !this.getType().matches("\\D+")) {
+            throw new IllegalArgumentException("O type não pode ser vazio ou numerico");
+        }
+        if (this.getPrice() < 0) {
+            throw new IllegalArgumentException("O price não pode ser negativo");
+        }
+        if (this.getAvailable() == null) {
+            throw new IllegalArgumentException("O available não pode ser vazio");
+        }
     }
 }
