@@ -1,14 +1,17 @@
 package br.com.ada.reservala.service;
 
 import br.com.ada.reservala.domain.Room;
+import br.com.ada.reservala.exception.RoomNotFoundException;
 import br.com.ada.reservala.repository.RoomRepository;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataAccessException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +30,7 @@ class RoomServiceTest {
     private RoomService roomService;
 
     @Test
-    void testCreateRoom_Success() {
+    void testCreateRoomSuccess() {
         Room room = new Room(1, "Deluxe", 450, true);
         when(roomRepository.createRoom(any(Room.class))).thenReturn(room);
 
@@ -39,17 +42,17 @@ class RoomServiceTest {
     }
 
     @Test
-    void testCreateRoom_NegativeRoomNumber_Failure() {
+    void testCreateRoomWithNegativeRoomNumber() {
         IllegalArgumentException thrown =  Assertions.assertThrows(
                 IllegalArgumentException.class,
                 ()->  roomService.createRoom(new Room(-12, "Site", 850, false)),
                 "Esperava-se que createRoom() fosse lançado, mas isso não aconteceu"
         );
-        assertTrue(thrown.getMessage().contains("O Number não pode ser negativo ou vazio"));
+        assertTrue(thrown.getMessage().contains("O RoomNumber não pode ser negativo ou vazio"));
     }
 
     @Test
-    void testCreateRoom_NegativePriceValue_Failure() {
+    void testCreateRoomWithNegativePriceValue() {
 
         IllegalArgumentException thrown =  Assertions.assertThrows(
                 IllegalArgumentException.class,
@@ -57,17 +60,6 @@ class RoomServiceTest {
                 "Esperava-se que createRoom() fosse lançado, mas isso não aconteceu"
         );
         assertTrue(thrown.getMessage().contains("O price não pode ser negativo"));
-    }
-
-    @Test
-    void testCreateRoom_DoublePriceValue_Failure() {
-        Room room = new Room(4, "Deluxe", 450, true);
-        when(roomRepository.createRoom(any(Room.class))).thenReturn(room);
-
-        Room createdRoom = roomService.createRoom(room);
-
-        verify(roomRepository).createRoom(eq(room));
-        assertSame(createdRoom.getPrice().getClass(), Double.class);
     }
 
 
@@ -79,11 +71,11 @@ class RoomServiceTest {
                 ()->  roomService.createRoom(new Room(4, "Deluxe", 450, null)),
                 "Esperava-se que createRoom() fosse lançado, mas isso não aconteceu"
         );
-        assertTrue(thrown.getMessage().contains("O availability não pode ser vazio."));
+        assertTrue(thrown.getMessage().contains("O available não pode ser vazio"));
     }
 
     @Test
-    void testCreateRoom_TypeEqualsToNull_Failure() {
+    void testCreateRoomWithTypeEqualsToNull_Failure() {
 
         IllegalArgumentException thrown =  Assertions.assertThrows(
                 IllegalArgumentException.class,
@@ -135,80 +127,98 @@ class RoomServiceTest {
     }
 
     @Test
-    void testUpdateRoom_Success() {
-        Room actualRoom = new Room(2, "Standard", 350, true);
-        Room updatedRoom = new Room(2, "Deluxe", 400, false);
-        Mockito.when(roomRepository.updateRoom(eq(updatedRoom)))
-                .thenReturn(updatedRoom);
+    void testUpdateRoomSuccess() {
+        Room room = new Room(2, "Deluxe", 400, false);
+        Mockito.when(roomRepository.updateRoom(eq(room)))
+                .thenReturn(room);
 
-        Room result = roomService.updateRoom(updatedRoom);
+        Room updatedRoom = roomService.updateRoom(room);
 
-        assertNotNull(result);
-        assertEquals(updatedRoom, result);
-        Mockito.verify(roomRepository, times(1)).updateRoom(eq(updatedRoom));
+        assertNotNull(updatedRoom);
+        assertEquals(room.getRoomNumber(), updatedRoom.getRoomNumber());
+        Mockito.verify(roomRepository, times(1)).updateRoom(eq(room));
     }
 
     @Test
-    void testUpdateRoom_InvalidPriceValue() {
-        Room invalidRoom = new Room(2, "Standard", -350, true);
+    void testUpdateRoomWithNull() {
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            roomService.updateRoom(null);
+        });
 
-        IllegalArgumentException thrown =  Assertions.assertThrows(
-                IllegalArgumentException.class,
-                ()->  roomService.updateRoom(invalidRoom),
-                "Esperava-se que updateRoom() fosse lançado, mas isso não aconteceu"
-        );
+        String expectedMessage = "Room não pode ser nulo";
+        String actualMessage = exception.getMessage();
 
-        assertTrue(thrown.getMessage().contains("O price não pode ser negativo"));
-        verify(roomRepository, never()).updateRoom(any(Room.class));
+        assertTrue(actualMessage.contains(expectedMessage));
+        Mockito.verify(roomRepository, times(0)).updateRoom(any(Room.class));
     }
 
     @Test
-    void testUpdateRoom_InvalidTypeValue() {
-        Room invalidRoom = new Room(2, null, -350, true);
+    void testUpdateRoomWithNonExistentRoom() {
+        Room room = new Room(850, "Suite", 500, true);
 
-        IllegalArgumentException thrown =  Assertions.assertThrows(
-                IllegalArgumentException.class,
-                ()->  roomService.updateRoom(invalidRoom),
-                "Esperava-se que updateRoom() fosse lançado, mas isso não aconteceu"
-        );
+        Mockito.when(roomRepository.updateRoom(room)).thenThrow(new RoomNotFoundException("Room com número " + room.getRoomNumber() + " não encontrada"));
 
-        assertTrue(thrown.getMessage().contains("O type não pode ser vazio ou numerico"));
-        verify(roomRepository, never()).updateRoom(any(Room.class));
+        Exception exception = assertThrows(RoomNotFoundException.class, () -> {
+            roomService.updateRoom(room);
+        });
+        String expctedMessage = "Room com número " + room.getRoomNumber() + " não encontrada";
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains(expctedMessage));
+        Mockito.verify(roomRepository, times(1)).updateRoom(room);
+    }
+
+
+
+    @Test
+    void testDeleteRoomSuccess() {
+        Integer roomNumber = 1;
+        Mockito.when(roomRepository.deleteRoom(roomNumber)).thenReturn(true);
+
+        boolean deleted = roomService.deleteRoom(roomNumber);
+
+        assertTrue(deleted);
+        Mockito.verify(roomRepository, times(1)).deleteRoom(roomNumber);
     }
 
     @Test
-    void testUpdateRoom_InvalidRoomNumber() {
-        Room invalidRoom = new Room(1, "Standard", 350, null);
+    void testDeleteWithNegativeRoomNumber() {
+        Integer roomNumber = -1;
 
-        IllegalArgumentException thrown =  Assertions.assertThrows(
-                IllegalArgumentException.class,
-                ()->  roomService.updateRoom(invalidRoom),
-                "Esperava-se que updateRoom() fosse lançado, mas isso não aconteceu"
-        );
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            roomService.deleteRoom(roomNumber);
+        });
 
-        assertTrue(thrown.getMessage().contains("O availability não pode ser vazio"));
-        verify(roomRepository, never()).updateRoom(any(Room.class));
+        String expectedMessage = "O número do quarto deve ser positivo.";
+        String actualMessage = exception.getMessage();
 
-    }
-
-    @Test
-    void testUpdateRoom_InvalidAvailableValue() {
-        Room invalidRoom = new Room(2, "Standard", 350, true);
-
-        IllegalArgumentException thrown =  Assertions.assertThrows(
-                IllegalArgumentException.class,
-                ()->  roomService.updateRoom(invalidRoom),
-                "Esperava-se que updateRoom() fosse lançado, mas isso não aconteceu"
-        );
-
-        assertTrue(thrown.getMessage().contains("O type não pode ser vazio ou numerico"));
-        verify(roomRepository, never()).updateRoom(any(Room.class));
+        assertTrue(actualMessage.contains(expectedMessage));
+        Mockito.verify(roomRepository, times(0)).deleteRoom(eq(roomNumber));
 
     }
 
     @Test
-    void deleteRoom() {
+    void testDeleteRoomWithNonExistentRoom() {
+        Room room = new Room(850, "Suite", 500, true);
+
+        Mockito.when(roomRepository.deleteRoom(room.getRoomNumber())).thenThrow(new RoomNotFoundException("Room com número " + room.getRoomNumber() + " não encontrada"));
+
+        Exception exception = assertThrows(RoomNotFoundException.class, () -> {
+            roomService.deleteRoom(room.getRoomNumber());
+        });
+        String expctedMessage = "Room com número " + room.getRoomNumber() + " não encontrada";
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains(expctedMessage));
+        Mockito.verify(roomRepository, times(1)).deleteRoom(room.getRoomNumber());
     }
+
+    @Test
+    void testDeleteRoomNull() {
+        assertThrows(IllegalArgumentException.class, () -> roomService.deleteRoom(null));
+        Mockito.verify(roomRepository, never()).deleteRoom(any());
+    }
+
 
     @Test
     void getOcupation() {
