@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -74,5 +75,37 @@ public class RoomRepositoryTest {
         });
 
         assertEquals("Room number não pode ser zero ou negativo", exception.getMessage());
+    }
+
+    @Test
+    void testDeleteRoom_Success() {
+        when(jdbcTemplate.update(anyString(), any(Integer.class))).thenReturn(1);
+
+        boolean result = roomRepository.deleteRoom(validRoom.getRoomNumber());
+
+        assertTrue(result);
+        verify(jdbcTemplate, times(1)).update(eq("delete from room WHERE roomNumber = ?"), eq(validRoom.getRoomNumber()));
+    }
+
+    @Test
+    void testDeleteRoom_RoomNotFound() {
+        when(jdbcTemplate.update(anyString(), any(Integer.class))).thenReturn(0);
+
+        boolean result = roomRepository.deleteRoom(999);
+
+        assertFalse(result);
+        verify(jdbcTemplate, times(1)).update(eq("delete from room WHERE roomNumber = ?"), eq(999));
+    }
+
+    @Test
+    void testDeleteRoom_Exception() {
+        when(jdbcTemplate.update(anyString(), any(Integer.class))).thenThrow(new DataAccessException("Erro ao excluir quarto: Erro no banco de dados") {});
+
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            roomRepository.deleteRoom(validRoom.getRoomNumber());
+        });
+
+        assertEquals("Erro ao excluir quarto: Erro no banco de dados", exception.getMessage());
+        verify(jdbcTemplate, times(1)).update(eq("delete from room WHERE roomNumber = ?"), eq(validRoom.getRoomNumber()));
     }
 }

@@ -57,4 +57,33 @@ class RoomTest {
 
         assertTrue(actualMessage.contains(expectedMessage));
     }
+
+    @Test
+    void testDeleteRoom_Success() {
+        Room room = new Room(1, "Standard", 350, true);
+        room.setAvailable(false);
+
+        assertFalse(room.getAvailable());
+    }
+
+    @Test
+    void testDeleteRoom_AlreadyUnavailable() {
+        Room room = new Room(2, "Deluxe", 500, false);
+
+
+        assertFalse(room.getAvailable());
+    }
+
+    @Test
+    void testDeleteRoom_InvalidRoomNumber() {
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            Room room = new Room(-3, "Standard", 350, true);
+            room.setAvailable(false);
+        });
+
+        String expectedMessage = "O RoomNumber não pode ser negativo ou vazio";
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains(expectedMessage));
+    }
 }
