@@ -12,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -218,6 +219,31 @@ class RoomServiceTest {
         assertThrows(IllegalArgumentException.class, () -> roomService.deleteRoom(null));
         Mockito.verify(roomRepository, never()).deleteRoom(any());
     }
+
+    @Test
+    void testDeleteRoomDatabaseFailure() {
+        Integer roomNumber = 4;
+        doThrow(EmptyResultDataAccessException.class).when(roomRepository).deleteRoom(roomNumber);
+
+        assertThrows(RuntimeException.class, () -> roomService.deleteRoom(roomNumber));
+        Mockito.verify(roomRepository, times(1)).deleteRoom(roomNumber);
+    }
+
+    @Test
+    void testDeleteAllRoomsSuccess() {
+        when(roomRepository.deleteAllRooms()).thenReturn(5);
+        int deletedCount = roomService.deleteAllRooms();
+        assertEquals(5, deletedCount);
+        Mockito.verify(roomRepository, times(1)).deleteAllRooms();
+    }
+
+    @Test
+    void testDeleteAllRoomsFailure() {
+        doThrow(EmptyResultDataAccessException.class).when(roomRepository).deleteAllRooms();
+        assertThrows(RuntimeException.class, () -> roomService.deleteAllRooms());
+        Mockito.verify(roomRepository, times(1)).deleteAllRooms();
+    }
+
 
 
     @Test
