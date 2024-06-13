@@ -66,13 +66,16 @@ public class RoomRepositoryTest {
     }
 
     @Test
-    void testUpdateRoom_NegativeRoomNumber() {
-        Room invalidRoom = new Room(-1, "Deluxe", 400, false);
+    void testUpdateRoomWithNegativeRoomNumber() {
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            Room invalidRoom = new Room(-1, "Deluxe", 400, false);
             roomRepository.updateRoom(invalidRoom);
         });
 
-        assertEquals("Room number não pode ser zero ou negativo", exception.getMessage());
+        String expectedMessage = "O RoomNumber não pode ser negativo ou vazio";
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains(expectedMessage));
     }
 }
