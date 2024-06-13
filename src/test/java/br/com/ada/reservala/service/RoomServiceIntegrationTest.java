@@ -437,8 +437,27 @@ class RoomServiceIntegrationTest {
     }
 
     @Test
-    void deleteRoom() {
+    void testDeleteRoomSuccess() throws Exception {
+        RoomDtoRequest roomDto = new RoomDtoRequest(101, "Standard", 250, true);
+        mockMvc.perform(MockMvcRequestBuilders.post("/room")
+                        .content(objectMapper.writeValueAsString(roomDto))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
 
+        mockMvc.perform(MockMvcRequestBuilders.delete("/room/101"))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void testDeleteRoomNotFound() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.delete("/room/9999"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void testDeleteRoomInvalidNumber() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.delete("/room/0"))
+                .andExpect(status().isBadRequest());
     }
 
 }
