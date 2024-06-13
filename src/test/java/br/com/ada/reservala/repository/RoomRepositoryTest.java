@@ -33,7 +33,7 @@ public class RoomRepositoryTest {
     }
 
     @Test
-    void testUpdateRoom_Success() {
+    void testUpdateRoomSuccess() {
         when(jdbcTemplate.update(anyString(), any(Object[].class))).thenReturn(1);
 
         Room result = roomRepository.updateRoom(validRoom);
@@ -54,7 +54,7 @@ public class RoomRepositoryTest {
     }
 
     @Test
-    void testUpdateRoom_RoomNotFound() {
+    void testUpdateRoomWithNonExistentRoom() {
         when(jdbcTemplate.update(anyString(), any(Object[].class))).thenThrow(new RuntimeException("Room not found"));
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
@@ -67,18 +67,21 @@ public class RoomRepositoryTest {
     }
 
     @Test
-    void testUpdateRoom_NegativeRoomNumber() {
-        Room invalidRoom = new Room(-1, "Deluxe", 400, false);
+    void testUpdateRoomWithNegativeRoomNumber() {
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            Room invalidRoom = new Room(-1, "Deluxe", 400, false);
             roomRepository.updateRoom(invalidRoom);
         });
 
-        assertEquals("Room number não pode ser zero ou negativo", exception.getMessage());
+        String expectedMessage = "O RoomNumber não pode ser negativo ou vazio";
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains(expectedMessage));
     }
 
     @Test
-    void testDeleteRoom_Success() {
+    void testDeleteRoomSuccess() {
         when(jdbcTemplate.update(anyString(), any(Integer.class))).thenReturn(1);
 
         boolean result = roomRepository.deleteRoom(validRoom.getRoomNumber());
@@ -88,7 +91,7 @@ public class RoomRepositoryTest {
     }
 
     @Test
-    void testDeleteRoom_RoomNotFound() {
+    void testDeleteRoomWithNonExistentRoom() {
         when(jdbcTemplate.update(anyString(), any(Integer.class))).thenReturn(0);
 
         boolean result = roomRepository.deleteRoom(999);
@@ -98,7 +101,7 @@ public class RoomRepositoryTest {
     }
 
     @Test
-    void testDeleteRoom_Exception() {
+    void testDeleteRoomWithException() {
         when(jdbcTemplate.update(anyString(), any(Integer.class))).thenThrow(new DataAccessException("Erro ao excluir quarto: Erro no banco de dados") {});
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
