@@ -19,6 +19,49 @@ Algumas tecnologias específicas que também foram utilizadas:
 > Exceções customizadas <br>
 > Integração com H2 Database usando JDBC Template <br>
 
+## Estrutura do projeto
+````css
+reserva-room-hotel
+│ README.md
+│ pom.xml
+└───src
+│    └───main
+│          └───java
+│                └───br
+│                    └───com
+│                         └───ada
+│                              └───reservala
+│                                     │ ReservaApplication.java
+│                                     └───controller
+│                                     │ RoomController.java
+│                                     └───dto
+│                                     │ RoomDtoRequest.java
+│                                     └───exception
+│                                     │ ErrorHandler.java
+│                                     │ RoomNotFoundException.java
+│                                     └───domain
+│                                     │ Room.java
+│                                     └───repository
+│                                     │ RoomRepository.java
+│                                     └───service
+│                                     │ RoomService.java
+└───test
+│     └───java
+│           └───br
+│               └───com
+│                    └───ada
+│                         └───reservala
+│                         │ ReservaApplicationTests.java
+│                         └───controller
+│                         │ RoomControllerIntegrationTest.java
+│                         └───domain
+│                         │ RoomTest.java
+│                         └───service
+│                         │ RoomServiceTest.java
+│                         └───repository
+│                         │ RoomRepositoryTest.java
+````
+
 ## Configuração do Ambiente
 
 ### Pré-requisitos
