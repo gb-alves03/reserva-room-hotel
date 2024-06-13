@@ -47,7 +47,7 @@ public class RoomController {
     }
 
     public ResponseEntity<Double> getRevenue(){
-        return ResponseEntity.ok(roomService.getOcupation());
+        return ResponseEntity.ok(roomService.getRevenue());
     }
 
 }
