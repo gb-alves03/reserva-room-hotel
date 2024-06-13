@@ -241,8 +241,25 @@ class RoomServiceIntegrationTest {
 
 
     @Test
-    void readRoom() {
+    void testReadRoomSuccess() throws Exception{
+        LinkedHashMap<String, Object> room = new LinkedHashMap<>();
+        room.put("roomNumber", 87);
+        room.put("type", "Deluxe");
+        room.put("price", 450.99);
+        room.put("available", true);
 
+
+        String content = objectMapper.writeValueAsString(room);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .post("/room")
+                .content(content)
+                .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().isOk());
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .get("/room")
+        ).andExpect(status().isOk());
     }
 
     @Test
