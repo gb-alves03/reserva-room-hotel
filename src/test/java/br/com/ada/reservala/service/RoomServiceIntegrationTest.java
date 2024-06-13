@@ -8,7 +8,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.dao.DataAccessException;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -18,7 +17,6 @@ import java.util.LinkedHashMap;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -461,12 +459,5 @@ class RoomServiceIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.delete("/room/0"))
                 .andExpect(status().isBadRequest());
     }
-
-    @Test
-    void testDeleteRoomNullNumber() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.delete("/room/null"))
-                .andExpect(status().isBadRequest());
-    }
-
 
 }

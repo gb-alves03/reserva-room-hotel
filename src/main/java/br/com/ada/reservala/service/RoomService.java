@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Validated
@@ -38,6 +39,7 @@ public class RoomService {
         validate(room);
         return roomRepository.updateRoom(room);
     }
+
 
     public boolean deleteRoom(Integer roomNumber) {
         if (roomNumber == null || roomNumber <= 0) {
@@ -74,6 +76,20 @@ public class RoomService {
     private void validate(Room room) {
         if (room == null) {
             throw new IllegalArgumentException("Room não pode ser nulo");
+        }
+    }
+
+    public String findById(int roomNumber) {
+        Optional<Room> room = roomRepository.readRoom().stream()
+                .filter(r -> r.getRoomNumber() == roomNumber)
+                .findFirst();
+
+        if (room.isPresent()) {
+            System.out.println("Quarto encontrado: " + room.get());
+            return room.get().toString();
+        } else {
+            System.out.println("Quarto não encontrado para o número: " + roomNumber);
+            return "Numero do quarto informado nao encontrado";
         }
     }
 
