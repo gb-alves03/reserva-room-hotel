@@ -35,11 +35,19 @@ public class RoomController {
         return ResponseEntity.ok(roomService.updateRoom(room));
     }
 
-    @DeleteMapping
-    @RequestMapping("/{roomNumber}")
+    @DeleteMapping("/{roomNumber}")
     public ResponseEntity<Void> deleteRoom(@PathVariable("roomNumber") Integer roomNumber){
-        roomService.deleteRoom(roomNumber);
-        return ResponseEntity.noContent().build();
+        boolean deleted = roomService.deleteRoom(roomNumber);
+        if (deleted) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+    @DeleteMapping("/all")
+    public ResponseEntity<Integer> deleteAllRooms() {
+        int deletedCount = roomService.deleteAllRooms();
+        return ResponseEntity.ok(deletedCount);
     }
 
     public ResponseEntity<Double> getOcupation(){
