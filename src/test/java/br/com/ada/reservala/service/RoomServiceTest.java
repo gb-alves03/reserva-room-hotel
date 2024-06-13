@@ -125,6 +125,30 @@ class RoomServiceTest {
     }
 
     @Test
+    void readRoomFindByPositive() {
+        Room room = new Room(1, "Standard", 100, true);
+        Room room1 = new Room(2, "Deluxe", 200, false);
+        List<Room> rooms = new ArrayList<>();
+        rooms.add(room);
+        rooms.add(room1);
+        when(roomRepository.readRoom()).thenReturn(rooms);
+
+        String foundRoomDetails = roomService.findById(1);
+
+        assertNotNull(foundRoomDetails, "A String retornada não deve ser nula para o quarto 1");
+
+        assertTrue(foundRoomDetails.contains(room.toString()), "A representação do quarto 1 encontrado deve conter o número do quarto");
+    }
+
+
+    @Test
+    void testReadRoomFindByNegative() {
+        String room4 = roomService.findById(4);
+        System.out.println(room4);
+        assertEquals("Numero do quarto informado nao encontrado", room4, "O quarto 4 não deve ser encontrado");
+    }
+
+    @Test
     void testUpdateRoomSuccess() {
         Room room = new Room(2, "Deluxe", 400, false);
         Mockito.when(roomRepository.updateRoom(eq(room)))
@@ -166,10 +190,53 @@ class RoomServiceTest {
         Mockito.verify(roomRepository, times(1)).updateRoom(room);
     }
 
+    @Test
+    void testDeleteRoomSuccess() {
+        Integer roomNumber = 1;
+        Mockito.when(roomRepository.deleteRoom(roomNumber)).thenReturn(true);
 
+        boolean deleted = roomService.deleteRoom(roomNumber);
+
+        assertTrue(deleted);
+        Mockito.verify(roomRepository, times(1)).deleteRoom(roomNumber);
+    }
 
     @Test
-    void deleteRoom() {
+    void testDeleteWithNegativeRoomNumber() {
+        Integer roomNumber = -1;
+
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            roomService.deleteRoom(roomNumber);
+        });
+
+        String expectedMessage = "O número do quarto deve ser positivo.";
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains(expectedMessage));
+        Mockito.verify(roomRepository, times(0)).deleteRoom(eq(roomNumber));
+
+    }
+
+    @Test
+    void testDeleteRoomWithNonExistentRoom() {
+        Room room = new Room(850, "Suite", 500, true);
+
+        Mockito.when(roomRepository.deleteRoom(room.getRoomNumber())).thenThrow(new RoomNotFoundException("Room com número " + room.getRoomNumber() + " não encontrada"));
+
+        Exception exception = assertThrows(RoomNotFoundException.class, () -> {
+            roomService.deleteRoom(room.getRoomNumber());
+        });
+        String expctedMessage = "Room com número " + room.getRoomNumber() + " não encontrada";
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains(expctedMessage));
+        Mockito.verify(roomRepository, times(1)).deleteRoom(room.getRoomNumber());
+    }
+
+    @Test
+    void testDeleteRoomNull() {
+        assertThrows(IllegalArgumentException.class, () -> roomService.deleteRoom(null));
+        Mockito.verify(roomRepository, never()).deleteRoom(any());
     }
 
     @Test
