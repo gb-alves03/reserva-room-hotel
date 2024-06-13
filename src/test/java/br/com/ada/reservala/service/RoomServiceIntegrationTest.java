@@ -1,124 +1,463 @@
 package br.com.ada.reservala.service;
 
-import br.com.ada.reservala.domain.Room;
-import br.com.ada.reservala.repository.RoomRepository;
-import org.junit.jupiter.api.BeforeEach;
+import br.com.ada.reservala.dto.RoomDtoRequest;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.ServletException;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashMap;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+
 @SpringBootTest
+@AutoConfigureMockMvc
+@ExtendWith(SpringExtension.class)
+class RoomServiceIntegrationTest {
 
-public class RoomServiceIntegrationTest {
 
     @Autowired
-    private RoomService roomService;
+    MockMvc mockMvc;
+    @Autowired
+    ObjectMapper objectMapper;
 
-    @MockBean
-    private RoomRepository roomRepository;
 
-    @BeforeEach
-    public void setUp() {
-        // Inicialização de dois objetos Room
-        Room room1 = new Room();
-        room1.setRoomNumber(1);
-        room1.setType("Standard");
-        room1.setPrice(100);
-        room1.setAvailable(true);
+    @Test
+    void testCreateRoomSuccess() throws Exception {
 
-        Room room2 = new Room();
-        room2.setRoomNumber(2);
-        room2.setType("Deluxe");
-        room2.setPrice(300);
-        room2.setAvailable(false);
+        LinkedHashMap<String, Object> room = new LinkedHashMap<>();
+        room.put("roomNumber", 71);
+        room.put("type", "Deluxe");
+        room.put("price", 450.99);
+        room.put("available", true);
 
-        Room room3 = new Room();
-        room3.setRoomNumber(3);
-        room3.setType("Basic");
-        room3.setPrice(80);
-        room3.setAvailable(true);
 
-        List<Room> rooms = new ArrayList<>();
-        rooms.add(room1);
-        rooms.add(room2);
-        rooms.add(room3);
+        String content = objectMapper.writeValueAsString(room);
 
-        when(roomRepository.readRoom()).thenReturn(rooms);
+        mockMvc.perform(MockMvcRequestBuilders
+                .post("/room")
+                .content(content)
+                .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().isOk());
+
     }
 
     @Test
-    void createRoom() {
-        Room room = new Room();
-        room.setRoomNumber(1);
-        room.setType("Deluxe");
-        room.setPrice(450);
-        room.setAvailable(true);
+    void testCreateRoomDuplicated() throws Exception {
 
-        when(roomRepository.createRoom(any(Room.class))).thenReturn(room);
+        LinkedHashMap<String, Object> room = new LinkedHashMap<>();
+        room.put("roomNumber", 654);
+        room.put("type", "Deluxe");
+        room.put("price", 1893);
+        room.put("available", true);
 
-        Room createdRoom = roomService.createRoom(room);
+        String content = objectMapper.writeValueAsString(room);
 
-        verify(roomRepository).createRoom(eq(room));
+        mockMvc.perform(MockMvcRequestBuilders
+                .post("/room")
+                .content(content)
+                .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().isOk());
 
-        System.out.println(createdRoom.toString());
+        LinkedHashMap<String, Object> duplicateRoom = new LinkedHashMap<>(room);
+
+        Exception exception = assertThrows(ServletException.class, () -> {
+            mockMvc.perform(MockMvcRequestBuilders
+                    .post("/room")
+                    .content(objectMapper.writeValueAsString(duplicateRoom))
+                    .contentType(MediaType.APPLICATION_JSON)
+            );
+        });
+
+        assertTrue(exception.getMessage().contains("Unique index or primary key violation"));
     }
+
+
+    @Test
+    public void testCreateRoomWithNegativePrice() throws Exception {
+
+        LinkedHashMap<String, Object> room = new LinkedHashMap<>();
+        room.put("roomNumber", 7);
+        room.put("type", "Deluxe");
+        room.put("price", -450.99);
+        room.put("available",false);
+
+
+        String content = objectMapper.writeValueAsString(room);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .post("/room")
+                .content(content)
+                .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().isBadRequest());
+    }
+
+
+    @Test
+    public void testCreateRoomWithNegativeRoomNumber() throws Exception {
+
+        LinkedHashMap<String, Object> room = new LinkedHashMap<>();
+        room.put("roomNumber", -7);
+        room.put("type", "Deluxe");
+        room.put("price", 450.99);
+        room.put("available", true);
+
+
+        String content = objectMapper.writeValueAsString(room);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .post("/room")
+                .content(content)
+                .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().isBadRequest());
+    }
+
+
+    @Test
+    public void testCreateRoomWithNegativeRoomNumberAndPrice() throws Exception {
+
+        LinkedHashMap<String, Object> room = new LinkedHashMap<>();
+        room.put("roomNumber", -7);
+        room.put("type", "Deluxe");
+        room.put("price", -450);
+        room.put("available", true);
+
+
+        String content = objectMapper.writeValueAsString(room);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .post("/room")
+                .content(content)
+                .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().isBadRequest());
+    }
+
+
+    @Test
+    void testCreateRoomWithDoublePriceValue() throws Exception {
+
+        LinkedHashMap<String, Object> room = new LinkedHashMap<>();
+        room.put("roomNumber", 7);
+        room.put("type", "Deluxe");
+        room.put("price", 1892.85);
+        room.put("available", true);
+
+
+        String content = objectMapper.writeValueAsString(room);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .post("/room")
+                .content(content)
+                .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().isOk());
+    }
+
+    @Test
+    void testCreateRoomWithAvailableFalse() throws Exception {
+        LinkedHashMap<String, Object> room = new LinkedHashMap<>();
+        room.put("roomNumber", 7);
+        room.put("type", "Deluxe");
+        room.put("price", 1892);
+        room.put("available", false);
+
+
+        String content = objectMapper.writeValueAsString(room);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .post("/room")
+                .content(content)
+                .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().isBadRequest());
+    }
+
+
+    @Test
+    void testCreateRoomWithAvailableNull() throws Exception {
+        LinkedHashMap<String, Object> room = new LinkedHashMap<>();
+        room.put("roomNumber", 7);
+        room.put("type", "Deluxe");
+        room.put("price", 1892);
+        room.put("available", null);
+
+
+        String content = objectMapper.writeValueAsString(room);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .post("/room")
+                .content(content)
+                .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().isBadRequest());
+    }
+
+
+    @Test
+    void testCreateRoomWithTypeNull() throws Exception {
+        LinkedHashMap<String, Object> room = new LinkedHashMap<>();
+        room.put("roomNumber", 7);
+        room.put("type", null);
+        room.put("price", 1892);
+        room.put("available", false);
+
+
+        String content = objectMapper.writeValueAsString(room);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .post("/room")
+                .content(content)
+                .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().isBadRequest());
+    }
+
+
+    @Test
+    void testCreateRoomWithTypeEqualsToNumber() throws Exception {
+        LinkedHashMap<String, Object> room = new LinkedHashMap<>();
+        room.put("roomNumber", 7);
+        room.put("type", 1233);
+        room.put("price", 1892);
+        room.put("available", true);
+
+
+        String content = objectMapper.writeValueAsString(room);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .post("/room")
+                .content(content)
+                .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().isBadRequest());
+    }
+
+
 
     @Test
     void readRoom() {
-        List<Room> returnedRooms = roomService.readRoom();
 
-        // Verifica o tamanho da lista de quartos retornada
-        assertEquals(3, returnedRooms.size(), "O número de quartos deve ser 3");
+    }
 
-        // Verifica os detalhes do primeiro quarto
-        Room room1 = returnedRooms.get(0);
-        System.out.println(room1);
-        assertEquals(1, room1.getRoomNumber(), "O número do quarto 1 deve ser 1");
-        assertEquals("Standard", room1.getType(), "O tipo do quarto 1 deve ser Standard");
-        assertEquals(100, room1.getPrice(), "O preço do quarto 1 deve ser 100");
-        assertTrue(room1.isAvailable(), "O quarto 1 deve estar disponível");
+    @Test
+    void testUpdateRoomSuccess() throws Exception {
+        RoomDtoRequest roomDto = new RoomDtoRequest(88, "Suite", 300, true);
 
-        // Verifica os detalhes do segundo quarto
-        Room room2 = returnedRooms.get(1);
-        System.out.println(room2);
+        LinkedHashMap<String, Object> room = new LinkedHashMap<>();
+        room.put("roomNumber", 88);
+        room.put("type", "Deluxe");
+        room.put("price", 450.99);
+        room.put("available", true);
 
-        assertEquals(2, room2.getRoomNumber(), "O número do quarto 2 deve ser 2");
-        assertEquals("Deluxe", room2.getType(), "O tipo do quarto 2 deve ser Deluxe");
-        assertEquals(300, room2.getPrice(), "O preço do quarto 2 deve ser 300");
-        assertFalse(room2.isAvailable(), "O quarto 2 não deve estar disponível");
 
-        // Verifica os detalhes do terceiro quarto
-        Room room3 = returnedRooms.get(2);
-        System.out.println(room3);
-        assertEquals(3, room3.getRoomNumber(), "O número do quarto 3 deve ser 3");
-        assertEquals("Basic", room3.getType(), "O tipo do quarto 3 deve ser Basic");
-        assertEquals(80, room3.getPrice(), "O preço do quarto 3 deve ser 80");
-        assertTrue(room3.isAvailable(), "O quarto 3 deve estar disponível");
+        String content = objectMapper.writeValueAsString(room);
 
+        mockMvc.perform(MockMvcRequestBuilders
+                .post("/room")
+                .content(content)
+                .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().isOk());
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .put("/room")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(roomDto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.roomNumber").value(88))
+                .andExpect(jsonPath("$.type").value("Suite"))
+                .andExpect(jsonPath("$.price").value(300))
+                .andExpect(jsonPath("$.available").value(true));
 
     }
 
 
     @Test
-    void updateRoom() {
+    void testUpdateRoomWithNonExistentRoom() throws Exception{
+        RoomDtoRequest roomDto = new RoomDtoRequest(2, "Suite", 300, true);
+
+        /*LinkedHashMap<String, Object> room = new LinkedHashMap<>();
+        room.put("roomNumber", 1);
+        room.put("type", "Deluxe");
+        room.put("price", 450.99);
+        room.put("available", true);
+
+
+        String content = objectMapper.writeValueAsString(room);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .post("/room")
+                .content(content)
+                .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().isOk());*/
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .put("/room")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(roomDto))
+        ).andExpect(status().isNotFound());
+    }
+
+
+    @Test
+    void testUpdateRoomWithNullBody() throws Exception{
+        /*LinkedHashMap<String, Object> room = new LinkedHashMap<>();
+        room.put("roomNumber", 1);
+        room.put("type", "Deluxe");
+        room.put("price", 450.99);
+        room.put("available", true);
+
+
+        String content = objectMapper.writeValueAsString(room);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .post("/room")
+                .content(content)
+                .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().isOk());*/
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .put("/room")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{}")
+        ).andExpect(status().isBadRequest());
+    }
+
+
+    @Test
+    void testUpdateRoomWithInvalidRoomNumber() throws Exception {
+        /*LinkedHashMap<String, Object> room = new LinkedHashMap<>();
+        room.put("roomNumber", 1);
+        room.put("type", "Deluxe");
+        room.put("price", 450.99);
+        room.put("available",true);
+
+
+        String content = objectMapper.writeValueAsString(room);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .post("/room")
+                .content(content)
+                .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().isOk());*/
+
+        RoomDtoRequest roomDto = new RoomDtoRequest(-1, "Premium", 300, false);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .put("/room")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(roomDto))
+        ).andExpect(status().isBadRequest());
+    }
+
+
+    @Test
+    void testUpdateRoomWithInvalidPrice() throws Exception {
+        /*LinkedHashMap<String, Object> room = new LinkedHashMap<>();
+        room.put("roomNumber", 1);
+        room.put("type", "Deluxe");
+        room.put("price", 450.99);
+        room.put("available", true);
+
+
+        String content = objectMapper.writeValueAsString(room);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .post("/room")
+                .content(content)
+                .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().isOk());*/
+
+        RoomDtoRequest roomDto = new RoomDtoRequest(71, "Premium", -300, false);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .put("/room")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(roomDto))
+        ).andExpect(status().isBadRequest());
+    }
+
+
+    @Test
+    void testUpdateRoomWithTypeNull() throws Exception {
+        /*LinkedHashMap<String, Object> room = new LinkedHashMap<>();
+        room.put("roomNumber", 1);
+        room.put("type", "Deluxe");
+        room.put("price", 450.99);
+        room.put("available",true);
+
+
+        String content = objectMapper.writeValueAsString(room);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .post("/room")
+                .content(content)
+                .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().isOk());*/
+
+        RoomDtoRequest roomDto = new RoomDtoRequest(71, null, 300, false);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .put("/room")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(roomDto))
+        ).andExpect(status().isBadRequest());
+    }
+
+
+    @Test
+    void testUpdateRoomWithAvailableNull() throws Exception {
+        /*LinkedHashMap<String, Object> room = new LinkedHashMap<>();
+        room.put("roomNumber", 1);
+        room.put("type", "Deluxe");
+        room.put("price", 450.99);
+        room.put("available", true);
+
+
+        String content = objectMapper.writeValueAsString(room);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .post("/room")
+                .content(content)
+                .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().isOk());*/
+
+        RoomDtoRequest roomDto = new RoomDtoRequest(71, "Premium", 300, null);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .put("/room")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(roomDto))
+        ).andExpect(status().isBadRequest());
     }
 
     @Test
-    void deleteRoom() {
+    void testDeleteRoomSuccess() throws Exception {
+        RoomDtoRequest roomDto = new RoomDtoRequest(101, "Standard", 250, true);
+        mockMvc.perform(MockMvcRequestBuilders.post("/room")
+                        .content(objectMapper.writeValueAsString(roomDto))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(MockMvcRequestBuilders.delete("/room/101"))
+                .andExpect(status().isNoContent());
     }
 
     @Test
-    void getOcupation() {
+    void testDeleteRoomNotFound() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.delete("/room/9999"))
+                .andExpect(status().isNotFound());
     }
 
     @Test
-    void getRevenue() {
+    void testDeleteRoomInvalidNumber() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.delete("/room/0"))
+                .andExpect(status().isBadRequest());
     }
+
 }

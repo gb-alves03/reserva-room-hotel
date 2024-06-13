@@ -1,38 +1,66 @@
 package br.com.ada.reservala.service;
 
 import br.com.ada.reservala.domain.Room;
+import br.com.ada.reservala.exception.RoomNotFoundException;
 import br.com.ada.reservala.repository.RoomRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Validated
 public class RoomService {
-    private Boolean available;
+
+    private final RoomRepository roomRepository;
 
 
-    private RoomRepository roomRepository;
-
-
-    public RoomService(RoomRepository roomRepository) {
+    @Autowired
+    public RoomService(RoomRepository roomRepository){
         this.roomRepository = roomRepository;
     }
 
     public Room createRoom(Room room) {
+        if (!room.getAvailable()) {
+            throw new IllegalArgumentException("O available deve ser true");
+        }
+        validate(room);
         return roomRepository.createRoom(room);
     }
 
-    public List<Room> readRoom() {
+    public List<Room> readRoom(){
         return roomRepository.readRoom();
     }
 
     public Room updateRoom(Room room) {
+        validate(room);
         return roomRepository.updateRoom(room);
     }
 
-    public void deleteRoom(Integer roomNumber) {
-        roomRepository.deleteRoom(roomNumber);
+
+    public boolean deleteRoom(Integer roomNumber) {
+        if (roomNumber == null || roomNumber <= 0) {
+            throw new IllegalArgumentException("O número do quarto deve ser positivo.");
+        }
+
+        try {
+            return roomRepository.deleteRoom(roomNumber);
+        } catch (RoomNotFoundException e) {
+            throw e;
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Erro ao excluir quarto: " + e.getMessage(), e);
+        }
+    }
+
+    public int deleteAllRooms() {
+        try {
+            return roomRepository.deleteAllRooms();
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Erro ao excluir todos os quartos: " + e.getMessage(), e);
+        }
     }
 
     //Deve calcular o percentual de quartos ocupados
@@ -40,10 +68,15 @@ public class RoomService {
         return 100d;
     }
 
-
     //Deve calcular a receita obtida
     public Double getRevenue() {
         return 100d;
+    }
+
+    private void validate(Room room) {
+        if (room == null) {
+            throw new IllegalArgumentException("Room não pode ser nulo");
+        }
     }
 
     public String findById(int roomNumber) {
@@ -61,6 +94,3 @@ public class RoomService {
     }
 
 }
-
-
-
