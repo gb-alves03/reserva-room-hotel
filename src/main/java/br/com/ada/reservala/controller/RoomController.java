@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/room")
@@ -27,6 +28,14 @@ public class RoomController {
     @GetMapping
     public ResponseEntity<List<Room>> readRoom() {
         return ResponseEntity.ok(roomService.readRoom());
+    }
+
+    @GetMapping("/{roomNumber}")
+    public ResponseEntity<Room> readRoomByRoomNumber(@PathVariable("roomNumber") Integer roomNumber) {
+        Optional<Room> roomOptional = roomService.readRoomByRoomNumber(roomNumber);
+        return roomOptional
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PutMapping
