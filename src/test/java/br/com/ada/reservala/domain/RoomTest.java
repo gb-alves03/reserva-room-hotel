@@ -6,12 +6,11 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 class RoomTest {
 
     @Test
-    void testUpdateRoom_InvalidPriceValue_Failure() {
+    void testRoomWithInvalidPrice() {
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             Room invalidRoom = new Room(2, "Standard", -350, true);
         });
@@ -23,7 +22,7 @@ class RoomTest {
     }
 
     @Test
-    void testUpdateRoom_InvalidTypeValue() {
+    void testRoomWithInvalidType() {
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             Room invalidRoom = new Room(2, null, 350, true);
         });
@@ -35,7 +34,7 @@ class RoomTest {
     }
 
     @Test
-    void testUpdateRoom_InvalidRoomNumber() {
+    void testRoomWithInvalidRoomNumber() {
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             Room invalidRoom = new Room(-2, "Standard", 350, true);
         });
@@ -47,7 +46,7 @@ class RoomTest {
     }
 
     @Test
-    void testUpdateRoom_InvalidAvailableValue() {
+    void testRoomWithInvalidAvailableValue() {
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             Room invalidRoom = new Room(2, "Standard", 350, null);
         });
@@ -56,5 +55,20 @@ class RoomTest {
         String actualMessage = exception.getMessage();
 
         assertTrue(actualMessage.contains(expectedMessage));
+    }
+
+    @Test
+    void testRoomSetAvailableFalse() {
+        Room room = new Room(1, "Standard", 350, true);
+        room.setAvailable(false);
+
+        assertFalse(room.getAvailable());
+    }
+
+    @Test
+    void testRoomAlreadyUnavailable() {
+        Room room = new Room(2, "Deluxe", 500, false);
+
+        assertFalse(room.getAvailable());
     }
 }
