@@ -35,6 +35,15 @@ public class RoomService {
         return roomRepository.readRoom();
     }
 
+    public Optional<Room> readRoomByRoomNumber(Integer roomNumber) {
+        try {
+            Room room = roomRepository.readRoomByRoomNumber(roomNumber);
+            return Optional.of(room);
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
+
     public Room updateRoom(Room room) {
         validate(room);
         return roomRepository.updateRoom(room);

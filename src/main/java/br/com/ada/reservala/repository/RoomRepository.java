@@ -17,6 +17,7 @@ public class RoomRepository {
 
     private String createSQL = "insert into room(roomNumber, type, price, available) values (?, ?, ?, ?)";
     private String readSQL = "select * from room";
+    private String readByRoomNumberSQL = "select * from room where roomNumber = ?";
     private String updateSQL = "update room set type = ?, price = ?, available = ? where roomNumber = ?";
     private String deleteSQL = "delete from room WHERE roomNumber = ?";
     private String deleteAllSQL = "DELETE FROM room";
@@ -44,6 +45,16 @@ public class RoomRepository {
                 rs.getBoolean("available")
         ));
         return jdbcTemplate.query(readSQL, rowMapper);
+    }
+
+    public Room readRoomByRoomNumber(Integer roomNumber) {
+        RowMapper<Room> rowMapper = ((rs, rowNum) -> new Room(
+                rs.getInt("roomNumber"),
+                rs.getString("type"),
+                rs.getInt("price"),
+                rs.getBoolean("available")
+        ));
+        return jdbcTemplate.queryForObject(readByRoomNumberSQL, rowMapper, roomNumber);
     }
 
     public Room updateRoom(Room room) {
