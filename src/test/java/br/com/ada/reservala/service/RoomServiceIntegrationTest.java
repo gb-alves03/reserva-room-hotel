@@ -85,7 +85,7 @@ class RoomServiceIntegrationTest {
 
 
     @Test
-    public void testCreateRoomWithNegativePrice() throws Exception {
+    void testCreateRoomWithNegativePrice() throws Exception {
 
         LinkedHashMap<String, Object> room = new LinkedHashMap<>();
         room.put("roomNumber", 7);
@@ -105,7 +105,7 @@ class RoomServiceIntegrationTest {
 
 
     @Test
-    public void testCreateRoomWithNegativeRoomNumber() throws Exception {
+    void testCreateRoomWithNegativeRoomNumber() throws Exception {
 
         LinkedHashMap<String, Object> room = new LinkedHashMap<>();
         room.put("roomNumber", -7);
@@ -125,7 +125,7 @@ class RoomServiceIntegrationTest {
 
 
     @Test
-    public void testCreateRoomWithNegativeRoomNumberAndPrice() throws Exception {
+    void testCreateRoomWithNegativeRoomNumberAndPrice() throws Exception {
 
         LinkedHashMap<String, Object> room = new LinkedHashMap<>();
         room.put("roomNumber", -7);
@@ -241,7 +241,54 @@ class RoomServiceIntegrationTest {
 
 
     @Test
-    void readRoom() {
+    void testReadRoomSuccess() throws Exception{
+        LinkedHashMap<String, Object> room = new LinkedHashMap<>();
+        room.put("roomNumber", 65);
+        room.put("type", "Deluxe");
+        room.put("price", 450.99);
+        room.put("available", true);
+
+
+        String content = objectMapper.writeValueAsString(room);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .post("/room")
+                .content(content)
+                .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().isOk());
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .get("/room")
+        ).andExpect(status().isOk());
+    }
+
+    @Test
+    void testReadRoomByRoomNumberSuccess() throws Exception {
+        LinkedHashMap<String, Object> room = new LinkedHashMap<>();
+        room.put("roomNumber", 50);
+        room.put("type", "Deluxe");
+        room.put("price", 450.99);
+        room.put("available", true);
+
+
+        String content = objectMapper.writeValueAsString(room);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .post("/room")
+                .content(content)
+                .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().isOk());
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .get("/room/50")
+        ).andExpect(status().isOk());
+    }
+
+    @Test
+    void testReadRoomByRoomNumberWithNonExistentRoom() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders
+                .get("/room/77")
+        ).andExpect(status().isNotFound());
 
     }
 
