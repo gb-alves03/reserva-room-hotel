@@ -1,12 +1,12 @@
 pipeline {
     agent any
-     tools { 
-        maven 'Maven 3.9.7' 
+    
+    tools {
+        maven 'Maven-jekins' // Nome da sua instalação do Maven no Jenkins
     }
 
     environment {
-        
-        ARTIFACT_NAME = 'target/*.jar'  // Ou target/*.war, dependendo do seu projeto
+        ARTIFACT_NAME = 'target/*.jar' // Ou target/*.war, dependendo do seu projeto
         DEPLOY_PATH = '/var/www/html' // Caminho de deploy (exemplo)
     }
 
@@ -18,25 +18,22 @@ pipeline {
         }
         stage('Build') {
             steps {
-                script {
-                    sh 'mvn dependency:resolve'
-                    sh 'mvn package'
-                }
+                sh 'mvn -v' // Exibe a versão do Maven em uso
+                sh 'mvn dependency:resolve'
+                sh 'mvn package'
             }
         }
         stage('Test') {
             steps {
-                script {
-                    sh 'mvn test'
-                    junit 'target/surefire-reports/*.xml' // Publica resultados de testes
-                }
+                sh 'mvn test'
+                junit 'target/surefire-reports/*.xml' 
             }
         }
         stage('Deploy') {
             steps {
                 script {
                     def artifactPath = findFiles(glob: env.ARTIFACT_NAME)[0].path
-                    sh "scp -r ${artifactPath} user@host:${env.DEPLOY_PATH}" // Exemplo de deploy com SCP
+                    sh "scp -r ${artifactPath} user@host:${env.DEPLOY_PATH}" 
                 }
             }
         }
@@ -44,8 +41,8 @@ pipeline {
 
     post {
         always {
-            cleanWs() // Limpa o workspace após o build
-            archiveArtifacts artifacts: env.ARTIFACT_NAME // Arquiva o artefato 
+            cleanWs() 
+            archiveArtifacts artifacts: env.ARTIFACT_NAME 
         }
     }
 }
