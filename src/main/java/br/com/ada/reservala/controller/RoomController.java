@@ -59,11 +59,13 @@ public class RoomController {
         return ResponseEntity.ok(deletedCount);
     }
 
-    public ResponseEntity<Double> getOcupation(){
+    @GetMapping("/ocupation")
+    public ResponseEntity<Double> getOcupation() {
         return ResponseEntity.ok(roomService.getOcupation());
     }
 
-    public ResponseEntity<Double> getRevenue(){
+    @GetMapping("revenue")
+    public ResponseEntity<Double> getRevenue() {
         return ResponseEntity.ok(roomService.getRevenue());
     }
 

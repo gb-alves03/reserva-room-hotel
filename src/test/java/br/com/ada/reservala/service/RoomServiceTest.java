@@ -4,6 +4,7 @@ import br.com.ada.reservala.domain.Room;
 import br.com.ada.reservala.exception.RoomNotFoundException;
 import br.com.ada.reservala.repository.RoomRepository;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -12,6 +13,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -26,6 +28,18 @@ class RoomServiceTest {
 
     @InjectMocks
     private RoomService roomService;
+
+    private List<Room> rooms;
+
+    @BeforeEach
+    void setUp() {
+        rooms = Arrays.asList(
+                new Room(1, "Suite", 320, true),
+                new Room(2, "Standard", 280, false),
+                new Room(3, "Deluxe", 400, false),
+                new Room(4, "Master", 500, true)
+        );
+    }
 
     @Test
     void testCreateRoomSuccess() {
@@ -240,10 +254,22 @@ class RoomServiceTest {
     }
 
     @Test
-    void getOcupation() {
+    public void testGetOcupation() {
+        when(roomRepository.readRoom()).thenReturn(rooms);
+
+        Double ocupation = roomService.getOcupation();
+
+        assertEquals(50.0, ocupation);
+        verify(roomRepository, times(1)).readRoom();
     }
 
     @Test
-    void getRevenue() {
+    public void testGetRevenue() {
+        when(roomRepository.readRoom()).thenReturn(rooms);
+
+        Double revenue = roomService.getRevenue();
+
+        assertEquals(680.0, revenue);
+        verify(roomRepository, times(1)).readRoom();
     }
 }
