@@ -64,7 +64,7 @@ jobs:
           name: artifact
           path: target/
       - name: Deploy to Jenkins
-        uses: appleboy/jenkins-action@master
+        uses: appleboy/jenkins-action
         with:
           url: ${{ secrets.JENKINS_URL }}
           user: ${{ secrets.JENKINS_USER }}
