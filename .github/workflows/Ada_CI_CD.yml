@@ -36,17 +36,23 @@ jobs:
       - name: Run Tests
         run: mvn test
 
-      
+      # Verificar se os arquivos XML foram gerados corretamente
+      - name: List Test Reports
+        run: ls -la target/surefire-reports/
+
+      # Compactar os resultados dos testes
       - name: Zip Test Results
-        run: gzip -r target/surefire-reports/*.xml  
+        run: |
+          cd target/surefire-reports
+          gzip *.xml
 
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
         env:
-          JAVA_OPTS: "-Xmx2048m"  
+          JAVA_OPTS: "-Xmx2048m"  # Aumenta o heap size para 2GB
         with:
-          files: target/surefire-reports/**/*.xml.gz  
+          files: target/surefire-reports/**/*.xml.gz # Corrigido para dois asteriscos
           check_name: Test Results
           comment_title: Test Summary
 
