@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/room")
@@ -29,25 +30,43 @@ public class RoomController {
         return ResponseEntity.ok(roomService.readRoom());
     }
 
+    @GetMapping("/{roomNumber}")
+    public ResponseEntity<Room> readRoomByRoomNumber(@PathVariable("roomNumber") Integer roomNumber) {
+        Optional<Room> roomOptional = roomService.readRoomByRoomNumber(roomNumber);
+        return roomOptional
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
     @PutMapping
     public ResponseEntity<Room> updateRoom(@RequestBody @Valid RoomDtoRequest roomDto){
         Room room = roomDto.convertToRoom();
         return ResponseEntity.ok(roomService.updateRoom(room));
     }
 
-    @DeleteMapping
-    @RequestMapping("/{roomNumber}")
+    @DeleteMapping("/{roomNumber}")
     public ResponseEntity<Void> deleteRoom(@PathVariable("roomNumber") Integer roomNumber){
-        roomService.deleteRoom(roomNumber);
-        return ResponseEntity.noContent().build();
+        boolean deleted = roomService.deleteRoom(roomNumber);
+        if (deleted) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+    @DeleteMapping("/all")
+    public ResponseEntity<Integer> deleteAllRooms() {
+        int deletedCount = roomService.deleteAllRooms();
+        return ResponseEntity.ok(deletedCount);
     }
 
-    public ResponseEntity<Double> getOcupation(){
+    @GetMapping("/ocupation")
+    public ResponseEntity<Double> getOcupation() {
         return ResponseEntity.ok(roomService.getOcupation());
     }
 
-    public ResponseEntity<Double> getRevenue(){
-        return ResponseEntity.ok(roomService.getOcupation());
+    @GetMapping("revenue")
+    public ResponseEntity<Double> getRevenue() {
+        return ResponseEntity.ok(roomService.getRevenue());
     }
 
 }

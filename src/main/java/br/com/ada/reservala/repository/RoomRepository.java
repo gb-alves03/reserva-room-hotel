@@ -17,8 +17,10 @@ public class RoomRepository {
 
     private String createSQL = "insert into room(roomNumber, type, price, available) values (?, ?, ?, ?)";
     private String readSQL = "select * from room";
+    private String readByRoomNumberSQL = "select * from room where roomNumber = ?";
     private String updateSQL = "update room set type = ?, price = ?, available = ? where roomNumber = ?";
-    private String deleteSQL = "delete from room";
+    private String deleteSQL = "delete from room WHERE roomNumber = ?";
+    private String deleteAllSQL = "DELETE FROM room";
 
     public RoomRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -45,6 +47,16 @@ public class RoomRepository {
         return jdbcTemplate.query(readSQL, rowMapper);
     }
 
+    public Room readRoomByRoomNumber(Integer roomNumber) {
+        RowMapper<Room> rowMapper = ((rs, rowNum) -> new Room(
+                rs.getInt("roomNumber"),
+                rs.getString("type"),
+                rs.getInt("price"),
+                rs.getBoolean("available")
+        ));
+        return jdbcTemplate.queryForObject(readByRoomNumberSQL, rowMapper, roomNumber);
+    }
+
     public Room updateRoom(Room room) {
         int rowsAffected = jdbcTemplate.update(updateSQL,
                 room.getType(),
@@ -58,8 +70,14 @@ public class RoomRepository {
         return room;
     }
 
-    public void deleteRoom(Integer roomNumber){
-        jdbcTemplate.update(deleteSQL, roomNumber);
+    public boolean deleteRoom(Integer roomNumber) {
+        int rowsAffected = jdbcTemplate.update(deleteSQL, roomNumber);
+
+        return rowsAffected > 0;
+    }
+
+    public int deleteAllRooms() {
+        return jdbcTemplate.update(deleteAllSQL);
     }
 
 
