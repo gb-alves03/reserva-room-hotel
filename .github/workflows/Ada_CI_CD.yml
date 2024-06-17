@@ -59,7 +59,7 @@ jobs:
           files: target/surefire-reports/*.xml
           check_name: Test Results
           comment_title: Test Summary
-          
+
   deploy:
     runs-on: ubuntu-latest
     needs: build-and-test
@@ -70,7 +70,6 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            const { exec } = require('@actions/exec');
             await exec('curl', [
               '-X', 'POST', 
               '-u', '${{ secrets.JENKINS_USER }}:${{ secrets.JENKINS_API_TOKEN }}',
