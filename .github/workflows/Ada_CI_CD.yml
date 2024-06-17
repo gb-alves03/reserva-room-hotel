@@ -52,10 +52,9 @@ jobs:
         env:
           JAVA_OPTS: "-Xmx2048m"  # Aumenta o heap size para 2GB
         with:
-          files: target/surefire-reports/**/*.xml.gz # Corrigido para dois asteriscos
+          files: target/surefire-reports/**/*.xml.gz  # Corrigido para dois asteriscos
           check_name: Test Results
           comment_title: Test Summary
-
 
   deploy:
     runs-on: ubuntu-latest
