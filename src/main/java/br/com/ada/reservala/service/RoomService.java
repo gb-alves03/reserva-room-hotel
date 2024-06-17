@@ -72,14 +72,25 @@ public class RoomService {
         }
     }
 
-    //Deve calcular o percentual de quartos ocupados
     public Double getOcupation() {
-        return 100d;
+        List<Room> rooms = roomRepository.readRoom();
+        long totalRooms = rooms.size();
+        long occupiedRooms = rooms.stream()
+                .filter(room -> !room.getAvailable())
+                .count();
+
+        if (totalRooms == 0) {
+            return 0d;
+        }
+        return (occupiedRooms / (double) totalRooms) * 100;
     }
 
-    //Deve calcular a receita obtida
     public Double getRevenue() {
-        return 100d;
+        List<Room> rooms = roomRepository.readRoom();
+        return rooms.stream()
+                .filter(room -> !room.getAvailable())
+                .mapToDouble(Room::getPrice)
+                .sum();
     }
 
     private void validate(Room room) {

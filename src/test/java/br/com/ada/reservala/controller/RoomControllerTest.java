@@ -1,4 +1,4 @@
-package br.com.ada.reservala.service;
+package br.com.ada.reservala.controller;
 
 import br.com.ada.reservala.dto.RoomDtoRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ExtendWith(SpringExtension.class)
-class RoomServiceIntegrationTest {
+class RoomControllerTest {
 
 
     @Autowired
@@ -294,7 +294,7 @@ class RoomServiceIntegrationTest {
 
     @Test
     void testUpdateRoomSuccess() throws Exception {
-        RoomDtoRequest roomDto = new RoomDtoRequest(88, "Suite", 300, true);
+        RoomDtoRequest roomDto = new RoomDtoRequest(88, "Suite", 300, false);
 
         LinkedHashMap<String, Object> room = new LinkedHashMap<>();
         room.put("roomNumber", 88);
@@ -319,7 +319,7 @@ class RoomServiceIntegrationTest {
                 .andExpect(jsonPath("$.roomNumber").value(88))
                 .andExpect(jsonPath("$.type").value("Suite"))
                 .andExpect(jsonPath("$.price").value(300))
-                .andExpect(jsonPath("$.available").value(true));
+                .andExpect(jsonPath("$.available").value(false));
 
     }
 
@@ -327,21 +327,6 @@ class RoomServiceIntegrationTest {
     @Test
     void testUpdateRoomWithNonExistentRoom() throws Exception{
         RoomDtoRequest roomDto = new RoomDtoRequest(2, "Suite", 300, true);
-
-        /*LinkedHashMap<String, Object> room = new LinkedHashMap<>();
-        room.put("roomNumber", 1);
-        room.put("type", "Deluxe");
-        room.put("price", 450.99);
-        room.put("available", true);
-
-
-        String content = objectMapper.writeValueAsString(room);
-
-        mockMvc.perform(MockMvcRequestBuilders
-                .post("/room")
-                .content(content)
-                .contentType(MediaType.APPLICATION_JSON)
-        ).andExpect(status().isOk());*/
 
         mockMvc.perform(MockMvcRequestBuilders
                         .put("/room")
@@ -353,21 +338,6 @@ class RoomServiceIntegrationTest {
 
     @Test
     void testUpdateRoomWithNullBody() throws Exception{
-        /*LinkedHashMap<String, Object> room = new LinkedHashMap<>();
-        room.put("roomNumber", 1);
-        room.put("type", "Deluxe");
-        room.put("price", 450.99);
-        room.put("available", true);
-
-
-        String content = objectMapper.writeValueAsString(room);
-
-        mockMvc.perform(MockMvcRequestBuilders
-                .post("/room")
-                .content(content)
-                .contentType(MediaType.APPLICATION_JSON)
-        ).andExpect(status().isOk());*/
-
         mockMvc.perform(MockMvcRequestBuilders
                 .put("/room")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -378,21 +348,6 @@ class RoomServiceIntegrationTest {
 
     @Test
     void testUpdateRoomWithInvalidRoomNumber() throws Exception {
-        /*LinkedHashMap<String, Object> room = new LinkedHashMap<>();
-        room.put("roomNumber", 1);
-        room.put("type", "Deluxe");
-        room.put("price", 450.99);
-        room.put("available",true);
-
-
-        String content = objectMapper.writeValueAsString(room);
-
-        mockMvc.perform(MockMvcRequestBuilders
-                .post("/room")
-                .content(content)
-                .contentType(MediaType.APPLICATION_JSON)
-        ).andExpect(status().isOk());*/
-
         RoomDtoRequest roomDto = new RoomDtoRequest(-1, "Premium", 300, false);
 
         mockMvc.perform(MockMvcRequestBuilders
@@ -405,21 +360,6 @@ class RoomServiceIntegrationTest {
 
     @Test
     void testUpdateRoomWithInvalidPrice() throws Exception {
-        /*LinkedHashMap<String, Object> room = new LinkedHashMap<>();
-        room.put("roomNumber", 1);
-        room.put("type", "Deluxe");
-        room.put("price", 450.99);
-        room.put("available", true);
-
-
-        String content = objectMapper.writeValueAsString(room);
-
-        mockMvc.perform(MockMvcRequestBuilders
-                .post("/room")
-                .content(content)
-                .contentType(MediaType.APPLICATION_JSON)
-        ).andExpect(status().isOk());*/
-
         RoomDtoRequest roomDto = new RoomDtoRequest(71, "Premium", -300, false);
 
         mockMvc.perform(MockMvcRequestBuilders
@@ -432,21 +372,6 @@ class RoomServiceIntegrationTest {
 
     @Test
     void testUpdateRoomWithTypeNull() throws Exception {
-        /*LinkedHashMap<String, Object> room = new LinkedHashMap<>();
-        room.put("roomNumber", 1);
-        room.put("type", "Deluxe");
-        room.put("price", 450.99);
-        room.put("available",true);
-
-
-        String content = objectMapper.writeValueAsString(room);
-
-        mockMvc.perform(MockMvcRequestBuilders
-                .post("/room")
-                .content(content)
-                .contentType(MediaType.APPLICATION_JSON)
-        ).andExpect(status().isOk());*/
-
         RoomDtoRequest roomDto = new RoomDtoRequest(71, null, 300, false);
 
         mockMvc.perform(MockMvcRequestBuilders
@@ -459,21 +384,6 @@ class RoomServiceIntegrationTest {
 
     @Test
     void testUpdateRoomWithAvailableNull() throws Exception {
-        /*LinkedHashMap<String, Object> room = new LinkedHashMap<>();
-        room.put("roomNumber", 1);
-        room.put("type", "Deluxe");
-        room.put("price", 450.99);
-        room.put("available", true);
-
-
-        String content = objectMapper.writeValueAsString(room);
-
-        mockMvc.perform(MockMvcRequestBuilders
-                .post("/room")
-                .content(content)
-                .contentType(MediaType.APPLICATION_JSON)
-        ).andExpect(status().isOk());*/
-
         RoomDtoRequest roomDto = new RoomDtoRequest(71, "Premium", 300, null);
 
         mockMvc.perform(MockMvcRequestBuilders
@@ -505,6 +415,20 @@ class RoomServiceIntegrationTest {
     void testDeleteRoomInvalidNumber() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.delete("/room/0"))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void testGetOcupation() throws Exception{
+        mockMvc.perform(MockMvcRequestBuilders
+                .get("/room/ocupation"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void testGetRevenue() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders
+                .get("/room/revenue"))
+                .andExpect(status().isOk());
     }
 
 }
