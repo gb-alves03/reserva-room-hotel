@@ -1,6 +1,6 @@
 # Reserva lá
 
-Reserva lá é uma API RESTful desenvolvida em Java utilizando Spring Boot e JDBC Template. O projeto segue padrões de desenvolvimento como DTO (Data Transfer Object) para uma melhor organização e manutenibilidade do código. Testes unitários e de integração foram implementados utilizando JUnit e Mockito, e as métricas de cobertura de testes foram geradas com Jacoco.
+Reserva lá é uma API REST desenvolvida em Java utilizando Spring Boot e JDBC Template. O projeto segue padrões de desenvolvimento como DTO (Data Transfer Object) para uma melhor organização e manutenibilidade do código. Testes unitários e de integração foram implementados utilizando JUnit e Mockito, e as métricas de cobertura de testes foram geradas com Jacoco.
 
 ## Tecnologias Utilizadas
 [![My Skills](https://skillicons.dev/icons?i=java,spring,maven,jenkins)](https://skillicons.dev) 
