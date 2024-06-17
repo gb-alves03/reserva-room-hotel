@@ -15,39 +15,47 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
       - name: Cache Maven packages
         uses: actions/cache@v3
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
+
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
           java-version: 17
           distribution: 'temurin'
+
       - name: Build with Maven
         run: mvn -B package --file pom.xml
+
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
           name: artifact
           path: target/*.jar
+
       - name: Run Tests
         run: mvn test
+
       - name: List Test Reports
         run: ls -la target/surefire-reports/
-      - name: Zip Test Results
+
+      - name: Decompress Test Results
         run: |
           cd target/surefire-reports
-          gzip *.xml
+          gunzip *.xml.gz || true # Use "|| true" to ignore errors if no .xml.gz files are found
+
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
         env:
           JAVA_OPTS: "-Xmx2048m"
         with:
-          files: target/surefire-reports/*.xml.gz
+          files: target/surefire-reports/*.xml
           check_name: Test Results
           comment_title: Test Summary
 
@@ -58,15 +66,17 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v4
+        
       - name: Download artifact from GitHub Actions
         uses: actions/download-artifact@v3
         with:
           name: artifact
           path: target/
+
+      # Deploy to Jenkins (Usando o Plugin Oficial)
       - name: Deploy to Jenkins
-        uses: appleboy/jenkins-action
+        uses: jenkinsci/action@master
         with:
-          url: ${{ secrets.JENKINS_URL }}
-          user: ${{ secrets.JENKINS_USER }}
-          token: ${{ secrets.JENKINS_TOKEN }}
-          job: 'job-jenkins-hotel'
+          jenkins_url: ${{ secrets.JENKINS_URL }}
+          jenkins_token: ${{ secrets.JENKINS_TOKEN }}
+          job_name: 'job-jenkins-hotel'
