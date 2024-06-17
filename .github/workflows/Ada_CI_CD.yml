@@ -70,6 +70,8 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
+            import { exec } from '@actions/exec'; // Importando a função exec
+
             await exec('curl', [
               '-X', 'POST', 
               '-u', '${{ secrets.JENKINS_USER }}:${{ secrets.JENKINS_API_TOKEN }}',
