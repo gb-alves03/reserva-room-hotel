@@ -66,17 +66,16 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v4
-        
+
       - name: Download artifact from GitHub Actions
         uses: actions/download-artifact@v3
         with:
           name: artifact
           path: target/
 
-      # Deploy to Jenkins (Usando o Plugin Oficial)
+      # Deploy to Jenkins (Usando a CLI do Jenkins já instalada)
       - name: Deploy to Jenkins
-        uses: jenkinsci/action@master
-        with:
-          jenkins_url: ${{ secrets.JENKINS_URL }}
-          jenkins_token: ${{ secrets.JENKINS_TOKEN }}
-          job_name: 'job-jenkins-hotel'
+        run: |
+          java -jar jenkins-cli.jar -s ${{ secrets.JENKINS_URL }} \
+            -auth ${{ secrets.JENKINS_USER }}:${{ secrets.JENKINS_API_TOKEN }} \
+            build 'job-jenkins-hotel'
