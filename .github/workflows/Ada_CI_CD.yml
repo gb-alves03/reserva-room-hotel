@@ -47,37 +47,32 @@ jobs:
       - name: Decompress Test Results
         run: |
           cd target/surefire-reports
-          gunzip *.xml.gz || true # Use "|| true" to ignore errors if no .xml.gz files are found
+          gunzip *.xml.gz || true
 
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
         env:
-          JAVA_OPTS: "-Xmx2048m"
+          JVM_ARGS: "-Xmx2048m"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           files: target/surefire-reports/*.xml
           check_name: Test Results
           comment_title: Test Summary
-
+          
   deploy:
     runs-on: ubuntu-latest
     needs: build-and-test
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Download artifact from GitHub Actions
-        uses: actions/download-artifact@v3
+      - name: Trigger Jenkins Job
+        uses: actions/github-script@v6
         with:
-          name: artifact
-          path: target/
-
-     
-      - name: Deploy to Jenkins
-        uses: appleboy/jenkins-action@master
-        with:
-          url: ${{ secrets.JENKINS_URL }}
-          user: ${{ secrets.JENKINS_USER }}
-          token: ${{ secrets.JENKINS_API_TOKEN }} 
-          job: 'seu-job-jenkins' 
+          script: |
+            const { exec } = require('@actions/exec');
+            await exec('curl', [
+              '-X', 'POST', 
+              '-u', '${{ secrets.JENKINS_USER }}:${{ secrets.JENKINS_API_TOKEN }}',
+              '${{ secrets.JENKINS_URL }}/job/seu-job-jenkins/buildWithParameters?token=${{ secrets.JENKINS_JOB_TOKEN }}'
+            ]);
