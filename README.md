@@ -53,7 +53,7 @@ reserva-room-hotel
 │                         └───reservala
 │                         │ ReservaApplicationTests.java
 │                         └───controller
-│                         │ RoomControllerIntegrationTest.java
+│                         │ RoomControllerTest.java
 │                         └───domain
 │                         │ RoomTest.java
 │                         └───service
