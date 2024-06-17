@@ -10,8 +10,8 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
     permissions:
-      checks: write       
-      contents: read       
+      checks: write
+      contents: read
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -36,19 +36,26 @@ jobs:
       - name: Run Tests
         run: mvn test
 
+      
+      - name: Zip Test Results
+        run: gzip -r target/surefire-reports/*.xml  
+
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
-        if: always()       
+        if: always()
+        env:
+          JAVA_OPTS: "-Xmx2048m"  
         with:
-          files: target/surefire-reports/*.xml
-          check_name: Test Results    
-          comment_title: Test Summary  
+          files: target/surefire-reports/**/*.xml.gz  
+          check_name: Test Results
+          comment_title: Test Summary
+
 
   deploy:
     runs-on: ubuntu-latest
     needs: build-and-test
     permissions:
-      contents: read       
+      contents: read
     steps:
       - uses: actions/checkout@v4
       - name: Download artifact from GitHub Actions
