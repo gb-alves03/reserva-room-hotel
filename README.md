@@ -99,4 +99,7 @@ Para gerar o relatório de cobertura de testes, utilize o comando:
   ````bash
   mvn jacoco:report
   ````
+
 O relatório será gerado no diretório "target/site/jacoco".
+
+
